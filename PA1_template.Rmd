@@ -5,14 +5,69 @@ output:
     keep_md: true
 ---
 
+## Objective
+To demonstrate a working knowledge of Literate (Statistical) Programming
+using R Markdown 
 
 ## Loading and preprocessing the data
+First thing we should do after reading data is try to understand it.
 
+```{r}
+activity <- read.csv("activity.csv")
+str(activity)
+summary(activity)
+```
 
+Here we can see there are 17,568 observations and 2304 of them are NA's or
+about 13%.  
+Also we know we will have to "fix" the date so it is in a usable format.  
+The number of observations per day is complete (288), i.e.: there are no
+days with missing records, although there are NA's.  
+A question that will be answered later is: are missing values inside any 
+given day or missing values correspond to complete days?  
+It is somehow disturbing that the interval value goes up to 2355
+(288*5 is 1440) and it can be explained by looking at the first 15 records.
+
+```{r}
+head(activity,15)
+```
+
+Ok! the interval is formed by four digits. The first two correspond to the
+"hour" and the other two correspond to the minute, which actually is recorded
+every five minutes (or twelve times in an hour).  
+Records 0:12 correspond to hour 0, records 13:25 to hour 1, and so on.
+
+Now we should convert dates to a date format.
+
+```{r}
+activity$date <- as.Date(as.character(activity$date), "%Y-%m-%d")
+```
 
 ## What is mean total number of steps taken per day?
+First we determine the total number of steps each day, and obtain basic 
+statistics.
 
+```{r}
+stepsbyday <- tapply(activity$steps, activity$date, sum, na.rm=TRUE)
+summary(stepsbyday)
+``` 
 
+So we observe the mean is 9,354 and the median 10,400
+
+Now we can answer the question previously stated. Which dates have 0 steps
+recorded?
+```{r}
+stepsbyday[stepsbyday==0]
+```
+
+We can see 8 days have 0 steps recorded and it makes sense. It will be very
+rare to have missing values inside a day. and just validating 8*288 is 2,304
+or the total number of missing values.
+
+An histogram of the steps by day follows: 
+```{r}
+hist(stepsbyday, breaks=10)
+```   
 
 ## What is the average daily activity pattern?
 
